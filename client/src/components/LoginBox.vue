@@ -1,85 +1,22 @@
 <template>
-  <section>
-	<div class="item">
-	  <i class="fas fa-user"></i>
-	  <div class="details">
-		<h3>Sign in</h3>
-		<p>Sign in to your account</p>
-	  </div>
-	</div>
-	<LoginBox />
+  <section class="border rounded border-slate-600 max-w-fit p-8 bg-slate-800">
+	<h2 class="text-2xl font-bold text-center pb-2">Login</h2>
+	<form class="flex flex-col items-center">
+	  <label for="email" class="text-sm">Email</label>
+	  <input
+		type="email"
+		id="email"
+		name="email"
+		class="border border-gray-300 rounded-md p-2"
+	  />
+	  <label for="password" class="text-sm">Password</label>
+	  <input
+		type="password"
+		id="password"
+		name="password"
+		class="border border-gray-300 rounded-md p-2"
+	  />
+	  <button class="bg-blue-500 text-white rounded-md p-2 mt-4">Login</button>
+	</form>
   </section>
 </template>
-
-  <style scoped>
-  .item {
-	margin-top: 2rem;
-	display: flex;
-  }
-
-  .details {
-	flex: 1;
-	margin-left: 1rem;
-  }
-
-  i {
-	display: flex;
-	place-items: center;
-	place-content: center;
-	width: 32px;
-	height: 32px;
-
-	color: var(--color-text);
-  }
-
-  h3 {
-	font-size: 1.2rem;
-	font-weight: 500;
-	margin-bottom: 0.4rem;
-	color: var(--color-heading);
-  }
-
-  @media (min-width: 1024px) {
-	.item {
-	  margin-top: 0;
-	  padding: 0.4rem 0 1rem calc(var(--section-gap) / 2);
-	}
-
-	i {
-	  top: calc(50% - 25px);
-	  left: -26px;
-	  position: absolute;
-	  border: 1px solid var(--color-border);
-	  background: var(--color-background);
-	  border-radius: 8px;
-	  width: 50px;
-	  height: 50px;
-	}
-
-	.item:before {
-	  content: ' ';
-	  border-left: 1px solid var(--color-border);
-	  position: absolute;
-	  left: 0;
-	  bottom: calc(50% + 25px);
-	  height: calc(50% - 25px);
-	}
-
-	.item:after {
-	  content: ' ';
-	  border-left: 1px solid var(--color-border);
-	  position: absolute;
-	  left: 0;
-	  top: calc(50% + 25px);
-	  height: calc(50% - 25px);
-	}
-
-	.item:first-of-type:before {
-	  display: none;
-	}
-
-	.item:last-of-type:after {
-	  display: none;
-	}
-  }
-  </style>

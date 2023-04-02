@@ -3,7 +3,7 @@ import LoginBox from '../components/LoginBox.vue'
 </script>
 
 <template>
-  <main>
-    <LoginBox class="my-auto" />
+  <main class="m-auto pb-8">
+    <LoginBox/>
   </main>
 </template>
