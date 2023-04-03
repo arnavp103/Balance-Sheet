@@ -21,8 +21,19 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue')
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('../views/SettingsView.vue')
     }
   ]
+})
+
+router.beforeEach((to, from) => {
+  if (to.name !== 'login' && !localStorage.getItem('token')) {
+    return { name: 'login' }
+  }
 })
 
 export default router
