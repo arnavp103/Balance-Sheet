@@ -1,5 +1,5 @@
 <template>
-  <section class="border-2 rounded border-secondary dark:border-dsecondary max-w-fit p-4">
+  <section class="border-2 rounded border-secondary dark:border-dsecondary transition-all duration-150 ease-in-out max-w-fit p-4">
 	<h2 class="text-2xl font-bold text-center pb-2">Login</h2>
 	<form class="flex flex-col items-center min-w-full space-y-4" @submit.prevent="submit">
 		<div class="flex flex-row justify-between flex-wrap md:flex-nowrap items-center mx-2 min-w-full ">
@@ -35,6 +35,8 @@
 				class="border border-gray-300 rounded-md p-2 text-dprimary grow-0 justify-end"
 			/>
 		</div>
+		<p v-show="passwordHint" class="text-center text-sm md-2 text-red-500">
+		Your passwords don't match</p>
 	  	<button type="submit" class="bg-secondary dark:bg-dsecondary text-white rounded-md p-2 mt-4">Submit</button>
 	</form>
   </section>
@@ -59,8 +61,16 @@ let email = ref("");
 let password = ref("");
 let confirmPassword = ref("");
 
+let passwordHint = ref(false);
+
 function submit() {
-	email.value = "asdadgf"
+	email.value = "";
+	if (!matchingPasswords()) {
+		passwordHint.value = true;
+		return;
+	}
+	passwordHint.value = false;
+
 }
 
 function matchingPasswords():boolean {

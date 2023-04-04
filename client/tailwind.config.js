@@ -13,7 +13,8 @@ module.exports = {
 		}
 	},
     fontFamily: {
-      Outfit: ['Outfit, sans-serif']
+      Outfit: ['Outfit, sans-serif'],
+	  mono: ['Roboto Mono, monospace']
     },
     container: {
       padding: '2rem',

@@ -4,6 +4,6 @@ import LoginBox from '../components/LoginBox.vue'
 
 <template>
   <main class="m-auto pb-8">
-    <LoginBox/>
+    <!-- <LoginBox/> -->
   </main>
 </template>

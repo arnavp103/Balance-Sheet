@@ -1,7 +1,7 @@
 <template>
     <main class="flex flex-col min-h-screen font-Outfit dark:bg-dprimary bg-primary">
       <SiteNavigation v-if="loggedIn"/>
-      <RouterView />
+      <RouterView class="flex-1" />
     </main>
 </template>
 

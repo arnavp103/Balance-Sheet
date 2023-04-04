@@ -3,11 +3,11 @@
 	<nav class="container flex flex-row sm:flex-row items-center justify-between px-6 py-4">
 		<RouterLink to="/" class="cursor-pointer">
 			<span class="text-debit text-2xl font-serif">Balance Sheet</span>
-			<i class="text-2xl text-center  not-italic px-2 rounded-full cursor-pointer hover:bg-blue-500 duration-150">⚖</i>
+			<i class="text-2xl text-center not-italic px-2 rounded-full cursor-pointer hover:text-white hover:animate-pulse ease-in-out">⚖</i>
 		</RouterLink>
 
 		<RouterLink to="{name: 'settings'}" class="flex gap-3 flex-1 justify-end">
-			<i class="text-2xl text-center not-italic px-2 rounded-full cursor-pointer hover:bg-blue-500 duration-150">⚙</i>
+			<i class="text-2xl text-center not-italic px-2 rounded-full cursor-pointer hover:text-white hover:animate-pulse ease-in-out">⚙</i>
 		</RouterLink>
 	</nav>
   </header>
@@ -15,8 +15,6 @@
 
 
 <script setup lang="ts">
-// defineProps<{
-// //   msg: string
-// }>()
+
 import { RouterLink } from "vue-router";
 </script>
