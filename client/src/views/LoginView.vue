@@ -1,5 +1,5 @@
 <template>
-  <div class="m-auto pb-12">
+  <div class="m-auto pb-14 flex flex-col justify-center">
     <LoginBox :signup="signup" @change-login="toggleSignup"/>
   </div>
 </template>
