@@ -9,10 +9,6 @@
 		<RouterLink :to="{name: 'settings'}" class="flex gap-3 flex-1 justify-end">
 			<i class="text-2xl text-center not-italic px-2 rounded-full cursor-pointer hover:text-white hover:animate-pulse ease-in-out">⚙</i>
 		</RouterLink>
-<!-- TEMPORARY -->
-		<RouterLink :to="{name: 'login'}" class="flex gap-3 flex-1 justify-end">
-			<i class="text-2xl text-center not-italic px-2 rounded-full cursor-pointer hover:text-white hover:animate-pulse ease-in-out">Login</i>
-		</RouterLink>
 	</nav>
   </header>
 </template>

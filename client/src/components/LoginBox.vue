@@ -1,7 +1,7 @@
 <template>
   <section class="border-2 rounded border-secondary dark:border-dsecondary transition-all duration-150 ease-in-out max-w-fit p-4">
 	<h2 class="text-2xl font-bold text-center pb-2">Login</h2>
-	<form class="flex flex-col items-center min-w-full space-y-4" @submit.prevent="submit">
+	<form class="flex flex-col items-center min-w-full space-y-4" @submit.prevent="onSubmit">
 		<div class="flex flex-row justify-between flex-wrap md:flex-nowrap items-center mx-2 min-w-full ">
 			<label for="email" class="text-sm">Email</label>
 			<input
@@ -45,6 +45,57 @@
 	<span v-else @click="$emit('change-login')" class="cursor-pointer">Already have an account?</span>
   </p>
 </template>
+<script lang="ts">
+import { defineComponent } from 'vue';
+import axios from 'axios';
+
+export default defineComponent({
+	name: 'LoginBox',
+	data() {
+		return {
+			users : ""
+		};
+	},
+	methods : {
+		getUsers() {
+			const path = 'http://localhost:5000/login';
+			axios.get(path)
+			.then ((res) => {
+				console.log(res.data)
+				this.users = res.data;
+			})
+			.catch ((err) => {
+				console.error(err);
+			});
+		},
+		addUser(payload: any) {
+			const path = 'http://localhost:5000/login';
+			axios.post(path, payload)
+			.then ((res) => {
+				this.getUsers();
+			})
+			.catch ((err) => {
+				console.error(err);
+				this.getUsers();
+			});
+		},
+		onSubmit(e: any) {
+			e.preventDefault();
+			const payload = {
+				name: email.value.split('@')[0],
+				email : email.value,
+				password : password.value
+			};
+			email.value = "";
+			this.addUser(payload)
+		},
+		
+	},
+	created() {
+		this.getUsers();
+	}
+})
+</script>
 
 <script setup lang="ts">
 import { ref } from 'vue';

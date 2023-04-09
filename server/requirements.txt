@@ -7,4 +7,5 @@ MarkupSafe==2.1.2
 SQLAlchemy==2.0.8
 typing_extensions==4.5.0
 Flask-Cors==3.0.10
+Flask-Marshmallow==0.15.0
 Werkzeug==2.2.3
