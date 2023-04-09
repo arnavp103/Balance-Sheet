@@ -45,83 +45,98 @@
 	<span v-else @click="$emit('change-login')" class="cursor-pointer">Already have an account?</span>
   </p>
 </template>
-<script lang="ts">
-import { defineComponent } from 'vue';
-import axios from 'axios';
-
-export default defineComponent({
-	name: 'LoginBox',
-	data() {
-		return {
-			users : ""
-		};
-	},
-	methods : {
-		getUsers() {
-			const path = 'http://localhost:5000/login';
-			axios.get(path)
-			.then ((res) => {
-				console.log(res.data)
-				this.users = res.data;
-			})
-			.catch ((err) => {
-				console.error(err);
-			});
-		},
-		addUser(payload: any) {
-			const path = 'http://localhost:5000/login';
-			axios.post(path, payload)
-			.then ((res) => {
-				this.getUsers();
-			})
-			.catch ((err) => {
-				console.error(err);
-				this.getUsers();
-			});
-		},
-		onSubmit(e: any) {
-			e.preventDefault();
-			const payload = {
-				name: email.value.split('@')[0],
-				email : email.value,
-				password : password.value
-			};
-			email.value = "";
-			this.addUser(payload)
-		},
-		
-	},
-	created() {
-		this.getUsers();
-	}
-})
-</script>
-
 <script setup lang="ts">
 import { ref } from 'vue';
+import axios from 'axios';
 
 defineEmits<{
 	"change-login": () => void
 }>()
 
-defineProps<{
+const props = defineProps<{
 	signup: boolean
 }>()
 
-let email = ref("");
-let password = ref("");
-let confirmPassword = ref("");
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+let users;
 
 let passwordHint = ref(false);
 
-function submit() {
-	email.value = "";
-	if (!matchingPasswords()) {
+function getUsers() {
+	const path = 'http://localhost:5000/api/login';
+	axios.get(path)
+	.then ((res) => {
+		users = res.data;
+	})
+	.catch ((err) => {
+		console.error(err);
+	});
+}
+
+function logUser(username: string) {
+	const path = 'http://localhost:5000/success/' + username;
+	axios.get(path)
+	.then ((res) => {
+		users = res.data;
+		sessionStorage.clear();
+		sessionStorage.setItem("currUser", JSON.stringify(users));
+	})
+	.catch ((err) => {
+		console.error(err);
+	});
+}
+
+function addUser(payload: any) {
+	const path = 'http://localhost:5000/api/register';
+	axios.post(path, payload)
+	.then ((res) => {
+		getUsers();
+	})
+	.catch ((err) => {
+		console.error(err);
+		console.log(err.message)
+		getUsers();
+	});
+}
+
+function submitLogin(payload: any) {
+	const path = 'http://localhost:5000/api/login';
+	axios.post(path, payload)
+	.then ((res) => {
+		logUser(payload['name'])
+	})
+	.catch ((err) => {
+		console.error(err);
+		getUsers();
+	});
+}
+
+function onSubmit(e: any) {
+	e.preventDefault();
+	if (!matchingPasswords() && props.signup) {
 		passwordHint.value = true;
 		return;
 	}
 	passwordHint.value = false;
+	const payload = {
+		name: email.value.split('@')[0],
+		email : email.value,
+		password : password.value,
+		signup: props.signup
+		};
+	if (props.signup) {
+		addUser(payload)
+	}
+	else {
+		submitLogin(payload)
+	}
 
+	console.log("Here is the current user:")
+	email.value = "";
+	password.value = "";
+	confirmPassword.value = "";
 }
 
 function matchingPasswords():boolean {

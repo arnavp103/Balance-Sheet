@@ -8,4 +8,5 @@ SQLAlchemy==2.0.8
 typing_extensions==4.5.0
 Flask-Cors==3.0.10
 Flask-Marshmallow==0.15.0
+flask_session==0.4.0
 Werkzeug==2.2.3

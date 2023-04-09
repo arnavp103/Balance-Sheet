@@ -14,5 +14,4 @@
 import Report from '../components/Report.vue';
 import Ledger from '../components/Ledger.vue';
 import { ref } from 'vue';
-
 </script>
