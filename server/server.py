@@ -96,15 +96,14 @@ def login():
     if request.method == "POST":
         post_data = request.get_json()
         if (User.query.filter_by(email=post_data['email']).first()):
-            if (User.query.filter_by(name=post_data['name']).first().password == post_data['password']):
-                user = User.query.filter_by(name=post_data['name']).first()
-                userSchema = UserSchema(many=False)
-                output = userSchema.dump(user)
-                session['name'] = output['name']
-                return redirect(url_for('success', username=output['name']))
+            user = User.query.filter_by(name=post_data['name']).first()
+            userSchema = UserSchema(many=False)
+            output = userSchema.dump(user)
+            session['name'] = output['name']
+            if (User.query.filter_by(email=post_data['email']).first().password == post_data['password']):
+                return redirect(url_for('checklogin', password=True))
             else:
-                # TODO: flash error msg
-                print("Incorrect username or password")
+                return redirect(url_for('checklogin', password=False))
     return jsonify(Userdb_to_dict())
 
 @app.route('/success/<username>')
@@ -113,6 +112,24 @@ def success(username):
     userSchema = UserSchema(many=False)
     output = userSchema.dump(user)
     return output
+
+@app.route('/deleteAccount/<email>', methods=['GET'])
+def deleteAccount(email):
+    user_to_delete = db.session.query(User).filter(User.email==email).first()
+    db.session.delete(user_to_delete)
+    db.session.commit()
+    return (email + " has been deleted")
+
+@app.route('/checklogin')
+def checklogin():
+    output = {}
+    password = request.args.get('password', None)
+    if (password == "True"):
+        output['checkPass'] = True
+        return output
+    else:
+        output['checkPass'] = False
+        return output
 
 @app.route('/settings/<email>', methods=['GET'])
 def user_info(email):

@@ -16,14 +16,15 @@
       </section>
 
       <section class="flex flex-row gap-8 container justify-evenly flex-grow align-baseline">
-        <button type="submit" class="bg-secondary dark:bg-dsecondary text-white rounded-md p-2 mt-4 w-2/6">Logout</button>
-        <button type="submit" class="bg-red-600 text-white rounded-md p-2 mt-4 w-2/6">Delete Account</button>
+        <button @click="Logout" type="submit" class="bg-secondary dark:bg-dsecondary text-white rounded-md p-2 mt-4 w-2/6">Logout</button>
+        <button @click="DeleteAccount" type="submit" class="bg-red-600 text-white rounded-md p-2 mt-4 w-2/6">Delete Account</button>
       </section>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
+import router from '../router/index'
 import { ref } from 'vue';
 import axios from 'axios';
 
@@ -34,21 +35,46 @@ const amount = ref(0);
 const goal = ref(null);
 
 function getUserInfo() {
-  const newJSON: any = sessionStorage.getItem("currUser");
-  const currUser: any = JSON.parse(newJSON)
-  const path = 'http://localhost:5000/settings/' + currUser.email;
-  axios.get(path)
-  .then ((res) => {
-    days.value = res.data.num_days;
-    amount.value = res.data.num_transactions;
-  })
-  .catch ((err) => {
-    console.error(err);
-  });
+    const newJSON: any = sessionStorage.getItem("currUser");
+    const currUser: any = JSON.parse(newJSON)
+    if (currUser != null) {
+        const path = 'http://localhost:5000/settings/' + currUser.email;
+        axios.get(path)
+        .then ((res) => {
+            days.value = res.data.num_days;
+            amount.value = res.data.num_transactions;
+        })
+        .catch ((err) => {
+            console.error(err);
+        });
+    }
+    else {
+        router.push({ path: 'login' });
+    }
 }
 
 getUserInfo()
 
+function Logout() {
+    sessionStorage.clear();
+    router.push({ path: 'login' });
+}
+
+function DeleteAccount() {
+    const newJSON: any = sessionStorage.getItem("currUser");
+    const currUser: any = JSON.parse(newJSON)
+    if (currUser != null) {
+        const path = 'http://localhost:5000/deleteAccount/' + currUser.email;
+        axios.get(path)
+        .then ((res) => {
+            sessionStorage.clear();
+            router.push({ path: 'login' });
+        })
+        .catch ((err) => {
+            console.error(err);
+        });
+    }
+}
 function setGoal() {
 
 }

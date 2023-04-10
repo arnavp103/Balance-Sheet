@@ -47,6 +47,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
+import router from '../router/index'
 import axios from 'axios';
 
 defineEmits<{
@@ -79,9 +80,9 @@ function logUser(username: string) {
 	const path = 'http://localhost:5000/success/' + username;
 	axios.get(path)
 	.then ((res) => {
-		users = res.data;
+		users = JSON.stringify(res.data);
 		sessionStorage.clear();
-		sessionStorage.setItem("currUser", JSON.stringify(users));
+		sessionStorage.setItem("currUser", users);
 	})
 	.catch ((err) => {
 		console.error(err);
@@ -105,7 +106,14 @@ function submitLogin(payload: any) {
 	const path = 'http://localhost:5000/api/login';
 	axios.post(path, payload)
 	.then ((res) => {
-		logUser(payload['name'])
+		if (res.data.checkPass) {
+			logUser(payload['name'])
+			router.push({ path: 'home' });
+		}
+		else {
+			// Wrong password
+			router.push({ path: 'login' })
+		}
 	})
 	.catch ((err) => {
 		console.error(err);
@@ -128,12 +136,11 @@ function onSubmit(e: any) {
 		};
 	if (props.signup) {
 		addUser(payload)
+		router.push({ path: 'login' })
 	}
 	else {
 		submitLogin(payload)
 	}
-
-	console.log("Here is the current user:")
 	email.value = "";
 	password.value = "";
 	confirmPassword.value = "";
