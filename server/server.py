@@ -1,11 +1,11 @@
 import os
 from datetime import date, timedelta
-from flask import Flask, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, request, jsonify, redirect, url_for, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../client/dist')
 
 CORS(app, resources={r'/*': {'origins': '*'}})
 # Session init
@@ -43,7 +43,8 @@ class Transaction(db.Model):
 
     def __repr__(self):
         return '(%s, %s, %s, %s, %s)' % (self.user_id, self.date, self.amount_dollars, self.amount_cents, self.reason)
-    
+
+# Used to convert User class to python dictionary easily
 class UserSchema(ma.SQLAlchemySchema):
     class Meta:
         model = User
@@ -53,6 +54,7 @@ class UserSchema(ma.SQLAlchemySchema):
     password = ma.auto_field()
     date_joined = ma.auto_field()
 
+# Used to convert Transaction class to python dictionary easily
 class transactionsSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Transaction
@@ -63,6 +65,7 @@ class transactionsSchema(ma.SQLAlchemySchema):
     amount_cents = ma.auto_field()
     reason = ma.auto_field()
 
+# If the db is empty
 def populateDB():
     if (User.query.filter_by(name='user').first() is None):
         user1 = User(name='user', email='user@mail.com', password='12345', date_joined=date(2022, 4, 20))
@@ -71,6 +74,14 @@ def populateDB():
         transaction1 = Transaction(user_id=1, date=date.today(), amount_dollars=60, amount_cents=25, reason="Testing")
         db.session.add(transaction1)
     db.session.commit()
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/')
 def home():
