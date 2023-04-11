@@ -1,11 +1,13 @@
 import os
 from datetime import date, timedelta
+import datetime
 from flask import Flask, request, jsonify, redirect, url_for, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 
-app = Flask(__name__, static_folder='../client/dist')
+# app = Flask(__name__, static_folder='../client/dist')
+app = Flask(__name__)
 
 CORS(app, resources={r'/*': {'origins': '*'}})
 # Session init
@@ -31,7 +33,7 @@ class User(db.Model):
     transactions = db.relationship('Transaction', backref='user')
 
     def __repr__(self):
-        return '(%s, %s, %s, %s)' % (self.name, self.email, self.password, self.date_joined)
+        return '(%s, %s, %s, %s, %s)' % (self.id, self.name, self.email, self.password, self.date_joined)
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,13 +51,14 @@ class UserSchema(ma.SQLAlchemySchema):
     class Meta:
         model = User
 
+    id = ma.auto_field()
     name = ma.auto_field()
     email = ma.auto_field()
     password = ma.auto_field()
     date_joined = ma.auto_field()
 
 # Used to convert Transaction class to python dictionary easily
-class transactionsSchema(ma.SQLAlchemySchema):
+class TransactionSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Transaction
 
@@ -75,13 +78,13 @@ def populateDB():
         db.session.add(transaction1)
     db.session.commit()
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+# @app.route('/', defaults={'path': ''})
+# @app.route('/<path:path>')
+# def serve(path):
+#     if path != "" and os.path.exists(app.static_folder + '/' + path):
+#         return send_from_directory(app.static_folder, path)
+#     else:
+#         return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/')
 def home():
@@ -102,8 +105,6 @@ def register():
 
 @app.route('/api/login', methods=['GET','POST'])
 def login():
-    if session.get('name') is None:
-        session['name']= 'Test'
     if request.method == "POST":
         post_data = request.get_json()
         if (User.query.filter_by(email=post_data['email']).first()):
@@ -116,6 +117,38 @@ def login():
             else:
                 return redirect(url_for('checklogin', password=False))
     return jsonify(Userdb_to_dict())
+
+@app.route('/api/debcred', methods=['POST'])
+def debcred():
+    if request.method == "POST":
+        post_data = request.get_json()
+        transaction_date = datetime.datetime.strptime(post_data['date'], '%Y-%m-%d')
+        new_transaction = Transaction(user_id=post_data['user_id'], date=transaction_date, amount_dollars=post_data['amount_dollars'],
+                                      amount_cents=post_data['amount_cents'], reason=post_data['reason'])
+        db.session.add(new_transaction)
+        db.session.commit()
+        return post_data
+    return "debcred"
+
+@app.route('/api/debcred/<id>', methods=['GET'])
+def usercred(id):
+    user_debits = Transaction.query.filter(
+        Transaction.user_id == id,
+        Transaction.amount_dollars >= 0,
+        Transaction.amount_cents >= 0
+    ).all()
+    user_credits = Transaction.query.filter(
+        Transaction.user_id == id,
+        Transaction.amount_dollars < 0,
+        Transaction.amount_cents >= 0
+    ).all()
+    transactionSchema = TransactionSchema(many=True)
+    credDict = transactionSchema.dump(user_credits)
+    debDict = transactionSchema.dump(user_debits)
+    user_transaction = [debDict, credDict]
+    print(credDict)
+    print(debDict)
+    return jsonify(user_transaction)
 
 @app.route('/success/<username>')
 def success(username):

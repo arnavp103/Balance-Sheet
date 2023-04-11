@@ -97,7 +97,6 @@ function addUser(payload: any) {
 	})
 	.catch ((err) => {
 		console.error(err);
-		console.log(err.message)
 		getUsers();
 	});
 }
