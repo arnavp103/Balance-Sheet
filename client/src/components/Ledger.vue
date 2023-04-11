@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onBeforeUpdate, onMounted, ref } from 'vue';
 // import router from '../router/index'
 import axios from 'axios';
 
@@ -93,6 +93,7 @@ type TransactionsList = {
 
 function getTransactions() {
 	const newJSON: any = sessionStorage.getItem("currUser");
+	console.log(newJSON);
 	const currUser: any = JSON.parse(newJSON);
 	const path = 'http://localhost:5000/api/debcred/' + currUser.id;
 	axios.get(path)
@@ -105,12 +106,12 @@ function getTransactions() {
 	});
 }
 
-// onMounted(async () => {
-// 	getTransactions(); // Fetch data from server
-// 	// for (var transaction of transactions) {
-// 	// 	if (transaction.)
-// 	// }
-// })
+onBeforeUpdate(async () => {
+	getTransactions(); // Fetch data from server
+	// for (var transaction of transactions) {
+	// 	if (transaction.)
+	// }
+})
 
 // Adds a v-card to cred-space
 // function addCredCard(amount_val: number, date: string, reason: string) {
@@ -190,7 +191,7 @@ function submitTransaction(payload: any) {
 	});
 }
 
-getTransactions()
+// getTransactions()
 </script>
 
 <style>
