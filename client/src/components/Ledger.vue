@@ -75,8 +75,6 @@ const cred_amount = ref("");
 const cred_date = ref("");
 const cred_reason = ref("");
 
-const newJSON: any = sessionStorage.getItem("currUser");
-const currUser: any = JSON.parse(newJSON);
 let transactions: TransactionsList;
 
 type Transaction = {
@@ -94,10 +92,13 @@ type TransactionsList = {
 
 
 function getTransactions() {
-	const path = 'http://localhost:5000/api/login';
+	const newJSON: any = sessionStorage.getItem("currUser");
+	const currUser: any = JSON.parse(newJSON);
+	const path = 'http://localhost:5000/api/debcred/' + currUser.id;
 	axios.get(path)
 	.then ((res) => {
 		transactions = res.data;
+		console.log(transactions)
 	})
 	.catch ((err) => {
 		console.error(err);
@@ -126,15 +127,19 @@ function clearDeb() {
 
 function onDebSubmit(e: any) {
 	e.preventDefault();
+	const newJSON: any = sessionStorage.getItem("currUser");
+	const currUser: any = JSON.parse(newJSON);
 	var amount_val = parseFloat(deb_amount.value);
 	var dollars = Math.floor(amount_val);
 	var cents = Math.round((amount_val - dollars) * 100);
+	console.log(cred_date.value);
+	console.log(cred_reason.value);
 	const payload: Transaction = {
 		amount_dollars: dollars,
 		amount_cents : cents,
-		date: cred_date.value,
-		reason : cred_reason.value,
-		user_id: currUser.id, // This might be wrong. Change to user_id if needed. Same for below
+		date: deb_date.value,
+		reason : deb_reason.value,
+		user_id: currUser.id,
 		debcred: 1
 	};
 	console.log(payload);
@@ -152,6 +157,8 @@ function clearCred() {
 
 function onCredSubmit(e: any) {
 	e.preventDefault();
+	const newJSON: any = sessionStorage.getItem("currUser");
+	const currUser: any = JSON.parse(newJSON);
 	var amount_val = parseFloat(cred_amount.value);
 	var dollars = Math.floor(amount_val);
 	var cents = Math.round((amount_val - dollars) * 100);
@@ -171,15 +178,19 @@ function onCredSubmit(e: any) {
 
 
 function submitTransaction(payload: any) {
-	const path = 'http://localhost:5000/api/login';
+	const newJSON: any = sessionStorage.getItem("currUser");
+	const currUser: any = JSON.parse(newJSON);
+	const path = 'http://localhost:5000/api/debcred';
 	axios.post(path, payload)
 	.then ((res) => {
-
+		console.log(res.data)
 	})	
 	.catch ((err) => {
 		console.error(err);
 	});
 }
+
+getTransactions()
 </script>
 
 <style>
