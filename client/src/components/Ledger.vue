@@ -26,6 +26,11 @@
 					</button>
 			</form>
 			<div id="deb-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
+				<div v-for="deb in deb_list" :key="deb.id" class="bg-white m-3 rounded p-1">
+					Date: {{ deb.date }}<br>
+					Amount: ${{ deb.amount_dollars + deb.amount_cents / 100.00 }}<br>
+					Reason: {{ deb.reason }}<br>
+				</div>
 			</div>
 		</div>
 
@@ -58,9 +63,11 @@
 					</button>
 			</form>
 			<div id="cred-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
-				<!-- <div v-for="transaction in transactions.data">
-					{{ transaction.date }}
-				</div> -->
+				<div v-for="cred in cred_list" :key="cred.id" class="bg-white m-3 rounded p-1">
+					Date: {{ cred.date }}<br>
+					Amount: ${{ cred.amount_dollars + cred.amount_cents / 100.00 }}<br>
+					Reason: {{ cred.reason }}<br>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -78,7 +85,8 @@ const cred_amount = ref("");
 const cred_date = ref("");
 const cred_reason = ref("");
 
-let transactions: TransactionsList;
+var deb_list: any;
+var cred_list: any;
 
 type Transaction = {
 	date: string;
@@ -101,13 +109,20 @@ function getTransactions() {
 	axios.get(path)
 	.then ((result) => {
 		let trans_obj = JSON.stringify(result.data);
-		console.log(trans_obj);
-		console.log(transactions);
+		let trans_list = JSON.parse(trans_obj);
+		deb_list = trans_list[0];
+		cred_list = trans_list[1];
+		console.log(deb_list);
+		console.log(cred_list);
 	})
 	.catch ((err) => {
 		console.error(err);
 	});
 }
+
+onMounted(async () => {
+	getTransactions(); // Fetch data from server
+})
 
 onBeforeUpdate(async () => {
 	getTransactions(); // Fetch data from server
@@ -191,7 +206,7 @@ function submitTransaction(payload: any) {
 	});
 }
 
-// getTransactions()
+
 </script>
 
 <style>
