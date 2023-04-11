@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUpdate, onMounted, ref } from 'vue';
+import { onMounted, onUpdated, ref } from 'vue';
 // import router from '../router/index'
 import axios from 'axios';
 
@@ -124,7 +124,7 @@ onMounted(async () => {
 	getTransactions(); // Fetch data from server
 })
 
-onBeforeUpdate(async () => {
+onUpdated(async () => {
 	getTransactions(); // Fetch data from server
 })
 
