@@ -132,10 +132,10 @@ function onDebSubmit(e: any) {
 	const payload: Transaction = {
 		amount_dollars: dollars,
 		amount_cents : cents,
-		date: cred_date.value,
-		reason : cred_reason.value,
-		user_id: currUser.id, // This might be wrong. Change to user_id if needed. Same for below
-		debcred: 1
+		date: deb_date.value,
+		reason : deb_reason.value,
+		user_id: 1, // This might be wrong. Change to user_id if needed. Same for below
+		debcred: 0
 	};
 	console.log(payload);
 	clearDeb();
@@ -160,7 +160,7 @@ function onCredSubmit(e: any) {
 		amount_cents : cents,
 		date: cred_date.value,
 		reason : cred_reason.value,
-		user_id: currUser.id,
+		user_id: 1,
 		debcred: 1
 	};
 	console.log(payload);	
