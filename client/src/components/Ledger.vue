@@ -58,6 +58,9 @@
 					</button>
 			</form>
 			<div id="cred-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
+				<!-- <div v-for="transaction in transactions.data">
+					{{ transaction.date }}
+				</div> -->
 			</div>
 		</div>
 	</div>
@@ -93,13 +96,13 @@ type TransactionsList = {
 
 function getTransactions() {
 	const newJSON: any = sessionStorage.getItem("currUser");
-	console.log(newJSON);
 	const currUser: any = JSON.parse(newJSON);
 	const path = 'http://localhost:5000/api/debcred/' + currUser.id;
 	axios.get(path)
-	.then ((res) => {
-		transactions = res.data;
-		console.log(transactions)
+	.then ((result) => {
+		let trans_obj = JSON.stringify(result.data);
+		console.log(trans_obj);
+		console.log(transactions);
 	})
 	.catch ((err) => {
 		console.error(err);
@@ -108,9 +111,6 @@ function getTransactions() {
 
 onBeforeUpdate(async () => {
 	getTransactions(); // Fetch data from server
-	// for (var transaction of transactions) {
-	// 	if (transaction.)
-	// }
 })
 
 // Adds a v-card to cred-space
