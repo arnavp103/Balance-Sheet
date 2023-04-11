@@ -1,30 +1,192 @@
 <template>
 	<div class="min-h-full min-w-full flex flex-row flex-nowrap">
 
-		<textarea name="" id="" v-model.trim="debits"
-		class="min-h-full bg-debit flex-1 text-neutral-900 font-mono
-		resize-none px-2 focus:outline-none"
-		>
-		</textarea>
-
-		<div class="h-full min-h-full bg-primary dark:bg-dprimary flex flex-col px-2">
-			<button class="rounded full bg-blue-950 text-yellow-400">
-				17/02/2021
-			</button>
+		<div name="" id="" 
+		class="min-h-full bg-debit d-flex flex-1 text-neutral-900 font-mono
+		resize-none px-2 focus:outline-none" height="300">
+			<form class="bg-primary rounded d-flex flex-grow-1 mt-5 p-5">
+				<h2 class="text-2xl font-bold text-center pb-2">Debit</h2>
+				<br>
+					<label :for="deb_amount">Amount: $ </label>
+					<input v-model="deb_amount" placeholder="0.00" id="deb_amount" type="number">
+					<br><br>
+					<label :for="deb_date">Date: </label>
+					<input v-model="deb_date" placeholder="" id="deb_date" type="date">
+					<br><br>
+					<label :for="deb_reason">Reason: </label>
+					<input v-model="deb_reason" placeholder="(optional)" id="deb_reason" type="text">
+					<br><br>
+					<button @click="clearDeb()"
+					class="rounded p-1 bg-red-500 text-white">
+						Clear
+					</button>
+					<button variant="outline-debit" @click="onDebSubmit"
+					class="rounded p-1 bg-green-500 text-white float-right">
+						Submit
+					</button>
+			</form>
+			<div id="deb-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
+			</div>
 		</div>
 
-		<textarea name="" id="" v-model.trim="credits"
+		<!-- Separator -->
+		<div class="h-full min-h-full bg-primary dark:bg-dprimary flex flex-col px-2">
+		</div>
+
+		<div name="" id=""
 		class="min-h-full  bg-credit flex-1 text-neutral-900 font-mono
-		resize-none px-2 focus:outline-none"
-		>
-		</textarea>
+		resize-none px-2 focus:outline-none">
+			<form class="bg-primary rounded d-flex flex-grow-1 mt-5 p-5">
+				<h2 class="text-2xl font-bold text-center pb-2">Credit</h2>
+				<br>
+					<label :for="cred_amount">Amount: $ </label>
+					<input v-model="cred_amount" placeholder="0.00" id="cred_amount" type="number">
+					<br><br>
+					<label :for="cred_date">Date: </label>
+					<input v-model="cred_date" placeholder="" id="cred_date" type="date">
+					<br><br>
+					<label :for="cred_reason">Reason: </label>
+					<input v-model="cred_reason" placeholder="(optional)" id="cred_reason" type="text">
+					<br><br>
+					<button @click="clearCred()"
+					class="rounded p-1 bg-red-500 text-white">
+						Clear
+					</button>
+					<button variant="outline-debit" @click="onCredSubmit"
+					class="rounded p-1 bg-green-500 text-white float-right">
+						Submit
+					</button>
+			</form>
+			<div id="cred-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
+			</div>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+// import router from '../router/index'
+import axios from 'axios';
 
-const debits = ref('debits...');
-const credits = ref('credits...');
+const deb_amount = ref("");
+const deb_date = ref("");
+const deb_reason = ref("");
+const cred_amount = ref("");
+const cred_date = ref("");
+const cred_reason = ref("");
 
+const newJSON: any = sessionStorage.getItem("currUser");
+const currUser: any = JSON.parse(newJSON);
+let transactions: TransactionsList;
+
+type Transaction = {
+	date: string;
+	amount_dollars: number;
+	amount_cents: number;
+	reason: string;
+	user_id: number;
+	debcred: number;
+};
+
+type TransactionsList = {
+  data: Transaction[];
+};
+
+
+function getTransactions() {
+	const path = 'http://localhost:5000/api/login';
+	axios.get(path)
+	.then ((res) => {
+		transactions = res.data;
+	})
+	.catch ((err) => {
+		console.error(err);
+	});
+}
+
+// onMounted(async () => {
+// 	getTransactions(); // Fetch data from server
+// 	// for (var transaction of transactions) {
+// 	// 	if (transaction.)
+// 	// }
+// })
+
+// Adds a v-card to cred-space
+// function addCredCard(amount_val: number, date: string, reason: string) {
+// 	document.getElementById("cred-space");
+
+// }
+
+function clearDeb() {
+	deb_amount.value = "";
+	deb_date.value = "";
+	deb_reason.value = "";
+}
+
+
+function onDebSubmit(e: any) {
+	e.preventDefault();
+	var amount_val = parseFloat(deb_amount.value);
+	var dollars = Math.floor(amount_val);
+	var cents = Math.round((amount_val - dollars) * 100);
+	const payload: Transaction = {
+		amount_dollars: dollars,
+		amount_cents : cents,
+		date: cred_date.value,
+		reason : cred_reason.value,
+		user_id: currUser.id, // This might be wrong. Change to user_id if needed. Same for below
+		debcred: 1
+	};
+	console.log(payload);
+	clearDeb();
+	submitTransaction(payload);
+}
+
+
+function clearCred() {
+	cred_amount.value = "";
+	cred_date.value = "";
+	cred_reason.value = "";
+}
+
+
+function onCredSubmit(e: any) {
+	e.preventDefault();
+	var amount_val = parseFloat(cred_amount.value);
+	var dollars = Math.floor(amount_val);
+	var cents = Math.round((amount_val - dollars) * 100);
+	const payload: Transaction = {
+		amount_dollars: dollars,
+		amount_cents : cents,
+		date: cred_date.value,
+		reason : cred_reason.value,
+		user_id: currUser.id,
+		debcred: 1
+	};
+	console.log(payload);	
+	clearCred();
+	// addCred();
+	submitTransaction(payload);
+}
+
+
+function submitTransaction(payload: any) {
+	const path = 'http://localhost:5000/api/login';
+	axios.post(path, payload)
+	.then ((res) => {
+
+	})	
+	.catch ((err) => {
+		console.error(err);
+	});
+}
 </script>
+
+<style>
+.display {
+	height: 49%;
+}
+.card {
+	height: 25%;
+}
+</style>
