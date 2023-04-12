@@ -6,8 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 
-# app = Flask(__name__, static_folder='../client/dist')
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../client/dist')
+# app = Flask(__name__)
 
 CORS(app, resources={r'/*': {'origins': '*'}})
 # Session init
@@ -41,6 +41,7 @@ class Transaction(db.Model):
     amount_dollars = db.Column(db.Integer)
     amount_cents = db.Column(db.Integer)
     reason = db.Column(db.String)
+    debcred = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
@@ -67,6 +68,7 @@ class TransactionSchema(ma.SQLAlchemySchema):
     amount_dollars = ma.auto_field()
     amount_cents = ma.auto_field()
     reason = ma.auto_field()
+    debcred = ma.auto_field()
 
 # If the db is empty
 def populateDB():
@@ -74,17 +76,17 @@ def populateDB():
         user1 = User(name='user', email='user@mail.com', password='12345', date_joined=date(2022, 4, 20))
         db.session.add(user1)
     if (Transaction.query.filter_by(reason='Testing').first() is None):
-        transaction1 = Transaction(user_id=1, date=date.today(), amount_dollars=60, amount_cents=25, reason="Testing")
+        transaction1 = Transaction(user_id=1, date=date.today(), amount_dollars=60, amount_cents=25, reason="Testing", debcred=True)
         db.session.add(transaction1)
     db.session.commit()
 
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path:path>')
-# def serve(path):
-#     if path != "" and os.path.exists(app.static_folder + '/' + path):
-#         return send_from_directory(app.static_folder, path)
-#     else:
-#         return send_from_directory(app.static_folder, 'index.html')
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/')
 def home():
@@ -98,9 +100,6 @@ def register():
             new_user = User(name=post_data['name'], email=post_data['email'], password=post_data['password'], date_joined=date.today())
             db.session.add(new_user)
             db.session.commit()
-        else:
-            # TODO: flash error msg
-            print("Email already registered")
     return jsonify(Userdb_to_dict())
 
 @app.route('/api/login', methods=['GET','POST'])
@@ -124,7 +123,7 @@ def debcred():
         post_data = request.get_json()
         transaction_date = datetime.datetime.strptime(post_data['date'], '%Y-%m-%d')
         new_transaction = Transaction(user_id=post_data['user_id'], date=transaction_date, amount_dollars=post_data['amount_dollars'],
-                                      amount_cents=post_data['amount_cents'], reason=post_data['reason'])
+                                      amount_cents=post_data['amount_cents'], reason=post_data['reason'], debcred=post_data['debcred'])
         db.session.add(new_transaction)
         db.session.commit()
         return post_data
@@ -134,20 +133,16 @@ def debcred():
 def usercred(id):
     user_debits = Transaction.query.filter(
         Transaction.user_id == id,
-        Transaction.amount_dollars >= 0,
-        Transaction.amount_cents >= 0
+        Transaction.debcred == False
     ).all()
     user_credits = Transaction.query.filter(
         Transaction.user_id == id,
-        Transaction.amount_dollars < 0,
-        Transaction.amount_cents >= 0
+        Transaction.debcred == True
     ).all()
     transactionSchema = TransactionSchema(many=True)
     credDict = transactionSchema.dump(user_credits)
     debDict = transactionSchema.dump(user_debits)
     user_transaction = [debDict, credDict]
-    print(credDict)
-    print(debDict)
     return jsonify(user_transaction)
 
 @app.route('/success/<username>')

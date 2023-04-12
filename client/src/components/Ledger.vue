@@ -16,21 +16,27 @@
 					<label :for="deb_reason">Reason: </label>
 					<input v-model="deb_reason" placeholder="(optional)" id="deb_reason" type="text">
 					<br><br>
-					<button @click="clearDeb()"
-					class="rounded p-1 bg-red-500 text-white">
+					<button @click= "clearDeb"
+					class="rounded p-1 bg-red-500 hover:bg-red-700 text-white">
 						Clear
 					</button>
 					<button variant="outline-debit" @click="onDebSubmit"
-					class="rounded p-1 bg-green-500 text-white float-right">
+					class="rounded p-1 bg-green-500 hover:bg-green-700 text-white float-right">
 						Submit
 					</button>
 			</form>
-			<div id="deb-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
+			<div v-if="loadDeb" id="deb-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
 				<div v-for="deb in deb_list" :key="deb.id" class="bg-white m-3 rounded p-1">
 					Date: {{ deb.date }}<br>
 					Amount: ${{ deb.amount_dollars + deb.amount_cents / 100.00 }}<br>
 					Reason: {{ deb.reason }}<br>
 				</div>
+			</div>
+			<div v-else class="flex-grow-1 display">
+				<button @click="showDeb()"
+					class="rounded p-1 bg-stone-500 hover:bg-stone-700 text-white float-left">
+						Show Debits
+				</button>
 			</div>
 		</div>
 
@@ -54,20 +60,26 @@
 					<input v-model="cred_reason" placeholder="(optional)" id="cred_reason" type="text">
 					<br><br>
 					<button @click="clearCred()"
-					class="rounded p-1 bg-red-500 text-white">
+					class="rounded p-1 bg-red-500 hover:bg-red-700 text-white">
 						Clear
 					</button>
 					<button variant="outline-debit" @click="onCredSubmit"
-					class="rounded p-1 bg-green-500 text-white float-right">
+					class="rounded p-1 bg-green-500 hover:bg-green-700 text-white float-right">
 						Submit
 					</button>
 			</form>
-			<div id="cred-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
+			<div v-if="loadCred" id="cred-space" class="scrollable d-flex flex-grow-1 overflow-auto display">
 				<div v-for="cred in cred_list" :key="cred.id" class="bg-white m-3 rounded p-1">
 					Date: {{ cred.date }}<br>
 					Amount: ${{ cred.amount_dollars + cred.amount_cents / 100.00 }}<br>
 					Reason: {{ cred.reason }}<br>
 				</div>
+			</div>
+			<div v-else class="flex-grow-1 display">
+				<button variant="outline-debit" @click="showCred"
+					class="rounded p-1 bg-stone-500 hover:bg-stone-700 text-white float-left">
+						Show Credits
+				</button>
 			</div>
 		</div>
 	</div>
@@ -84,6 +96,8 @@ const deb_reason = ref("");
 const cred_amount = ref("");
 const cred_date = ref("");
 const cred_reason = ref("");
+const loadCred = ref(0);
+const loadDeb = ref(0);
 
 var deb_list: any;
 var cred_list: any;
@@ -112,8 +126,6 @@ function getTransactions() {
 		let trans_list = JSON.parse(trans_obj);
 		deb_list = trans_list[0];
 		cred_list = trans_list[1];
-		console.log(deb_list);
-		console.log(cred_list);
 	})
 	.catch ((err) => {
 		console.error(err);
@@ -133,6 +145,14 @@ onUpdated(async () => {
 // 	document.getElementById("cred-space");
 
 // }
+
+function showCred(){
+	loadCred.value = 1
+}
+
+function showDeb(){
+	loadDeb.value = 1
+}
 
 function clearDeb() {
 	deb_amount.value = "";
